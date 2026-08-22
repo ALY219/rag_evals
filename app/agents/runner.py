@@ -1,3 +1,4 @@
+import re
 import time
 from dotenv import load_dotenv
 from langfuse import Langfuse
@@ -23,7 +24,11 @@ def run_agent(user_query: str) -> dict:
         elif "villa" in query_lower:
             unit = "Villa"
 
-        tool_input = MaintenanceFeeInput(apartment_type=unit, months=1)
+        # Dynamically extract requested months (defaults to 1 if unspecified)
+        months_match = re.search(r'(\d+)\s*month', query_lower)
+        months = int(months_match.group(1)) if months_match else 1
+
+        tool_input = MaintenanceFeeInput(apartment_type=unit, months=months)
         tool_output = calculate_maintenance_fee(tool_input)
         
         response_text = (
