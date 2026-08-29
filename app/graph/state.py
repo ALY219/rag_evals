@@ -6,7 +6,10 @@ class AgentState(TypedDict):
     retrieved_documents: List[str]
     crag_decision: str
     web_results: List[str]
+    lead_info: Dict[str, Optional[str]]
+    appointment_slot: Optional[str]
     final_answer: str
     sources: Dict[str, List[str]]
     tool_used: Optional[str]
+    is_safe: bool
     error: Optional[str]
