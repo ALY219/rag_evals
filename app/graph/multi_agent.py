@@ -1,5 +1,6 @@
 from langgraph.graph import StateGraph, START, END
 from app.graph.state import AgentState
+from app.graph.checkpointer import memory_checkpointer
 from app.graph.nodes.guardrail import guardrail_node
 from app.graph.nodes.property_research import property_research_node
 from app.graph.nodes.lead_qualification import lead_qualification_node
@@ -18,7 +19,6 @@ def route_intent(state: AgentState) -> str:
     else:
         return "property_research"
 
-# Build Multi-Agent Graph
 builder = StateGraph(AgentState)
 
 builder.add_node("guardrail", guardrail_node)
@@ -43,4 +43,5 @@ builder.add_edge("scheduling", END)
 builder.add_edge("lead_qualification", END)
 builder.add_edge("property_research", END)
 
-multi_agent_graph = builder.compile()
+# Compile multi-agent graph with persistent memory checkpointer
+multi_agent_graph = builder.compile(checkpointer=memory_checkpointer)

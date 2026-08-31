@@ -3,6 +3,7 @@ from typing import TypedDict, List, Optional, Dict
 class AgentState(TypedDict):
     session_id: str
     user_message: str
+    chat_history: List[Dict[str, str]]
     retrieved_documents: List[str]
     crag_decision: str
     web_results: List[str]
