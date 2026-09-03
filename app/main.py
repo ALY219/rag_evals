@@ -1,13 +1,18 @@
 import time
+from typing import List, Optional
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ValidationError
-from typing import Optional, List
 
 from app.rag.pipeline import query_rag_system
 from app.agents.runner import run_agent
+from app.api.v1.chat import router as chat_router
 
-app = FastAPI(title="RAG & Grounded Agent API", version="1.0.0")
+app = FastAPI(
+    title="Multi-Agent Real Estate RAG API",
+    version="1.0.0",
+    description="Enterprise Multi-Agent Graph backend powered by LangGraph & FastAPI",
+)
 
 # Middleware: Latency tracking
 @app.middleware("http")
@@ -18,7 +23,7 @@ async def add_process_time_header(request: Request, call_next):
     response.headers["X-Process-Time"] = f"{process_time:.4f}s"
     return response
 
-# Exception Handler: Validation Errors
+# Global Exception Handler: Pydantic Validation Errors
 @app.exception_handler(ValidationError)
 async def validation_exception_handler(request: Request, exc: ValidationError):
     return JSONResponse(
@@ -26,7 +31,10 @@ async def validation_exception_handler(request: Request, exc: ValidationError):
         content={"error": "Invalid payload format", "details": exc.errors()},
     )
 
-# Request / Response Schemas
+# Include V1 Multi-Agent Chat Router
+app.include_router(chat_router, prefix="/api/v1")
+
+# Schemas for Legacy / Direct Sprint B Endpoints
 class RAGQueryRequest(BaseModel):
     query: str
 
@@ -41,11 +49,16 @@ class AgentQueryResponse(BaseModel):
     response: str
     tool_used: Optional[str] = None
 
-# Routes
+# System Diagnostics Endpoints
 @app.get("/")
 def read_root():
-    return {"status": "online", "service": "RAG & Tool-Using Agent Engine"}
+    return {"status": "online", "service": "Multi-Agent Real Estate RAG Engine"}
 
+@app.get("/health")
+def health_check():
+    return {"status": "healthy", "service": "multi_agent_rag"}
+
+# Direct RAG and Agent Endpoints
 @app.post("/query", response_model=RAGQueryResponse)
 def handle_rag_query(payload: RAGQueryRequest):
     try:
