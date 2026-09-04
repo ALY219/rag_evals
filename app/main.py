@@ -7,6 +7,7 @@ from pydantic import BaseModel, ValidationError
 from app.rag.pipeline import query_rag_system
 from app.agents.runner import run_agent
 from app.api.v1.chat import router as chat_router
+from app.api.v1.stream import router as stream_router
 
 app = FastAPI(
     title="Multi-Agent Real Estate RAG API",
@@ -31,10 +32,11 @@ async def validation_exception_handler(request: Request, exc: ValidationError):
         content={"error": "Invalid payload format", "details": exc.errors()},
     )
 
-# Include V1 Multi-Agent Chat Router
+# Include V1 Routers (REST & Streaming)
 app.include_router(chat_router, prefix="/api/v1")
+app.include_router(stream_router, prefix="/api/v1")
 
-# Schemas for Legacy / Direct Sprint B Endpoints
+# Schemas for Legacy / Direct Endpoints
 class RAGQueryRequest(BaseModel):
     query: str
 
