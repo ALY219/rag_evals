@@ -8,6 +8,7 @@ from app.rag.pipeline import query_rag_system
 from app.agents.runner import run_agent
 from app.api.v1.chat import router as chat_router
 from app.api.v1.stream import router as stream_router
+from app.api.v1.voice import router as voice_router
 
 app = FastAPI(
     title="Multi-Agent Real Estate RAG API",
@@ -32,9 +33,10 @@ async def validation_exception_handler(request: Request, exc: ValidationError):
         content={"error": "Invalid payload format", "details": exc.errors()},
     )
 
-# Include V1 Routers (REST & Streaming)
+# Include V1 Routers (REST, SSE Streaming & Voice)
 app.include_router(chat_router, prefix="/api/v1")
 app.include_router(stream_router, prefix="/api/v1")
+app.include_router(voice_router, prefix="/api/v1")
 
 # Schemas for Legacy / Direct Endpoints
 class RAGQueryRequest(BaseModel):
